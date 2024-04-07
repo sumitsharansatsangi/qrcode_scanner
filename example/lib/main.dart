@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,14 +17,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Uint8List bytes = Uint8List(0);
-  TextEditingController _inputController;
-  TextEditingController _outputController;
+  late TextEditingController _inputController;
+  late TextEditingController _outputController;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
-    this._inputController = new TextEditingController();
-    this._outputController = new TextEditingController();
+    _inputController = TextEditingController();
+    _outputController = TextEditingController();
   }
 
   @override
@@ -39,13 +36,13 @@ class _MyAppState extends State<MyApp> {
           builder: (BuildContext context) {
             return ListView(
               children: <Widget>[
-                _qrCodeWidget(this.bytes, context),
+                _qrCodeWidget(bytes, context),
                 Container(
                   color: Colors.white,
                   child: Column(
                     children: <Widget>[
                       TextField(
-                        controller: this._inputController,
+                        controller: _inputController,
                         keyboardType: TextInputType.url,
                         textInputAction: TextInputAction.go,
                         onSubmitted: (value) => _generateBarCode(value),
@@ -61,7 +58,7 @@ class _MyAppState extends State<MyApp> {
                       ),
                       SizedBox(height: 20),
                       TextField(
-                        controller: this._outputController,
+                        controller: _outputController,
                         maxLines: 2,
                         decoration: InputDecoration(
                           prefixIcon: Icon(Icons.wrap_text),
@@ -75,7 +72,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                       ),
                       SizedBox(height: 20),
-                      this._buttonGroup(),
+                      _buttonGroup(),
                       SizedBox(height: 70),
                     ],
                   ),
@@ -101,6 +98,12 @@ class _MyAppState extends State<MyApp> {
         child: Column(
           children: <Widget>[
             Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              decoration: BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(4), topRight: Radius.circular(4)),
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
@@ -109,12 +112,6 @@ class _MyAppState extends State<MyApp> {
                   Spacer(),
                   Icon(Icons.more_vert, size: 18, color: Colors.black54),
                 ],
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(4), topRight: Radius.circular(4)),
               ),
             ),
             Padding(
@@ -146,7 +143,7 @@ class _MyAppState extends State<MyApp> {
                               textAlign: TextAlign.left,
                             ),
                             onTap: () =>
-                                this.setState(() => this.bytes = Uint8List(0)),
+                                setState(() => this.bytes = Uint8List(0)),
                           ),
                         ),
                         Text('|',
@@ -160,13 +157,13 @@ class _MyAppState extends State<MyApp> {
                                   await ImageGallerySaver.saveImage(this.bytes);
                               SnackBar snackBar;
                               if (success) {
-                                snackBar = new SnackBar(
+                                snackBar = SnackBar(
                                     content:
-                                        new Text('Successful Preservation!'));
-                                Scaffold.of(context).showSnackBar(snackBar);
+                                        Text('Successful Preservation!'));
+                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
                               } else {
-                                snackBar = new SnackBar(
-                                    content: new Text('Save failed!'));
+                                snackBar = SnackBar(
+                                    content: Text('Save failed!'));
                               }
                             },
                             child: Text(
@@ -185,6 +182,7 @@ class _MyAppState extends State<MyApp> {
             ),
             Divider(height: 2, color: Colors.black26),
             Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
               child: Row(
                 children: <Widget>[
                   Icon(Icons.history, size: 16, color: Colors.black38),
@@ -194,7 +192,6 @@ class _MyAppState extends State<MyApp> {
                   Icon(Icons.chevron_right, size: 16, color: Colors.black38),
                 ],
               ),
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
             )
           ],
         ),
@@ -210,7 +207,7 @@ class _MyAppState extends State<MyApp> {
           child: SizedBox(
             height: 120,
             child: InkWell(
-              onTap: () => _generateBarCode(this._inputController.text),
+              onTap: () => _generateBarCode(_inputController.text),
               child: Card(
                 child: Column(
                   children: <Widget>[
@@ -274,39 +271,42 @@ class _MyAppState extends State<MyApp> {
 
   Future _scan() async {
     await Permission.camera.request();
-    String barcode = await scanner.scan();
+    final barcode = await scanner.scan();
     if (barcode == null) {
       print('nothing return.');
     } else {
-      this._outputController.text = barcode;
+      _outputController.text = barcode;
     }
   }
 
   Future _scanPhoto() async {
     await Permission.storage.request();
-    String barcode = await scanner.scanPhoto();
-    this._outputController.text = barcode;
+    final barcode = await scanner.scanPhoto();
+    _outputController.text = barcode;
   }
 
   Future _scanPath(String path) async {
     await Permission.storage.request();
     String barcode = await scanner.scanPath(path);
-    this._outputController.text = barcode;
+    _outputController.text = barcode;
   }
 
-  Future _scanBytes() async {
-    File file = await ImagePicker().getImage(source: ImageSource.camera).then((picked) {
-      if (picked == null) return null;
-      return File(picked.path);
-    });
-    if (file == null) return;
-    Uint8List bytes = file.readAsBytesSync();
+  Future<XFile?> _scanBytes() async {
+    XFile? file = await ImagePicker().pickImage(source: ImageSource.camera);
+    // .then((picked) {
+    //   if (picked == null) return null;
+    //   return File(picked.path);
+    // });
+
+    if (file == null) return null;
+    Uint8List bytes = await file.readAsBytes();
     String barcode = await scanner.scanBytes(bytes);
-    this._outputController.text = barcode;
+    _outputController.text = barcode;
+    return file;
   }
 
   Future _generateBarCode(String inputCode) async {
     Uint8List result = await scanner.generateBarCode(inputCode);
-    this.setState(() => this.bytes = result);
+    setState(() => bytes = result);
   }
 }
