@@ -9,7 +9,7 @@ import android.hardware.SensorEventListener;
 
 class LightSensorEventListener implements SensorEventListener {
 
-    private LinearLayout lightLayout;
+    private final LinearLayout lightLayout;
 
     public LightSensorEventListener(LinearLayout lightLayout) {
         this.lightLayout = lightLayout;

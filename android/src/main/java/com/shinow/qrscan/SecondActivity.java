@@ -9,7 +9,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -67,40 +66,29 @@ public class SecondActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        lightLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isLightOpen) {
-                    try {
-                        CodeUtils.isLightEnable(true);
-                        isLightOpen = true;
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "Can't use light", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    try {
-                        CodeUtils.isLightEnable(false);
-                        isLightOpen = false;
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "Can't use light", Toast.LENGTH_SHORT).show();
-                    }
+        lightLayout.setOnClickListener(v -> {
+            if (!isLightOpen) {
+                try {
+                    CodeUtils.isLightEnable(true);
+                    isLightOpen = true;
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "Can't use light", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                try {
+                    CodeUtils.isLightEnable(false);
+                    isLightOpen = false;
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "Can't use light", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        backLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SecondActivity.this.finish();
-            }
-        });
-        photoLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                SecondActivity.this.startActivityForResult(intent, REQUEST_IMAGE);
-            }
+        backLayout.setOnClickListener(v -> SecondActivity.this.finish());
+        photoLayout.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            SecondActivity.this.startActivityForResult(intent, REQUEST_IMAGE);
         });
     }
 
@@ -124,6 +112,7 @@ public class SecondActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         Intent resultIntent = new Intent();
         Bundle bundle = new Bundle();
         bundle.putInt(CodeUtils.RESULT_TYPE, CodeUtils.RESULT_FAILED);
@@ -132,7 +121,7 @@ public class SecondActivity extends AppCompatActivity {
         SecondActivity.this.finish();
     }
 
-    private CodeUtils.AnalyzeCallback analyzeCallback = new CodeUtils.AnalyzeCallback() {
+    private final CodeUtils.AnalyzeCallback analyzeCallback = new CodeUtils.AnalyzeCallback() {
         @Override
         public void onAnalyzeSuccess(Bitmap mBitmap, String result) {
             Intent resultIntent = new Intent();

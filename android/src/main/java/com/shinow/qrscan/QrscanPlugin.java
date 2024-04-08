@@ -1,5 +1,8 @@
 package com.shinow.qrscan;
 
+import static com.uuzuche.lib_zxing.activity.CodeUtils.RESULT_SUCCESS;
+import static com.uuzuche.lib_zxing.activity.CodeUtils.RESULT_TYPE;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,10 +26,6 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-
-import static com.uuzuche.lib_zxing.activity.CodeUtils.RESULT_SUCCESS;
-import static com.uuzuche.lib_zxing.activity.CodeUtils.RESULT_TYPE;
 
 public class QrscanPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.ActivityResultListener {
 
@@ -36,17 +35,6 @@ public class QrscanPlugin implements FlutterPlugin, ActivityAware, MethodCallHan
     private Activity activity;
     private final int REQUEST_CODE = 100;
     private final int REQUEST_IMAGE = 101;
-
-    @Deprecated
-    public static void registerWith(Registrar registrar) {
-        QrscanPlugin plugin = new QrscanPlugin();
-        plugin.activity = registrar.activity();
-        plugin.channel = new MethodChannel(registrar.messenger(), "qr_scan");
-        plugin.channel.setMethodCallHandler(plugin);
-        registrar.addActivityResultListener(plugin);
-
-        ZXingLibrary.initDisplayOpinion(registrar.activity());
-    }
 
     private MethodChannel channel;
 
