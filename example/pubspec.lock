@@ -141,7 +141,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: a4312251dc083996ff8a5f1d7d11e61d23de9cbb
+      resolved-ref: "517d1c4740200ec8ddd2eb22eb5a7ec5ac6ad49a"
       url: "https://github.com/sumitsharansatsangi/image_gallery_saver.git"
     source: git
     version: "2.0.3"
